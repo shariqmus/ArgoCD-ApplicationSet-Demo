@@ -2,13 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+env: dev
+
 replicaCount: 2
 
 image:
   repository: amralaayassen/helm-app
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "staging"
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -20,11 +22,11 @@ service:
 
 
 ## Application level settings  
-appMode: staging
-certificatePath: /etc/ssl/staging
-paypalURLLocation: https://staging.paypal.example.com
-databaseUser: staging-user
-databasePassword: staging-password
+appMode: dev
+certificatePath: /etc/ssl/dev
+paypalURLLocation: https://dev.paypal.example.com
+databaseUser: dev-user
+databasePassword: dev-password
 
 
 
