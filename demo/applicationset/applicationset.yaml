@@ -2,30 +2,27 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: demo-helm-common-chart
-  namespace: argocd
 spec:
   generators:
-    - git:
-        repoURL: https://github.com/AmrAlaaYassen/ArgoCD-ApplicationSet-Demo.git
-        revision: HEAD
-        directories:
-          # here it will read the paths under configs and the subpaths under the config paths
-          - path: demo/configs/*/*
+  - list:
+      elements:
+      - cluster: do-lon1-engineering-dev
+        url: https://e5cfeb55-77ce-44bb-b209-7f872f9e8018.k8s.ondigitalocean.com
+      - cluster: do-lon1-engineering-prod
+        url: https://64d20718-444a-4c76-94ee-f613f20724e6.k8s.ondigitalocean.com
   template:
     metadata:
       namespace: argocd
-      # you can use the path strings with / delimiter as variables
       name: "{{path[2]}}-{{path.basename}}"
     spec:
       project: default
       source:
         helm:
-          # specify different values file based on directories variables
           valueFiles:
             - "configs/{{path[2]}}/{{path.basename}}/values.yaml"
             - "configs/{{path[2]}}/values.yaml"
         path: demo
-        repoURL: https://github.com/AmrAlaaYassen/ArgoCD-ApplicationSet-Demo.git
+        repoURL: https://github.com/shariqmus/ArgoCD-ApplicationSet-Demo.git
         targetRevision: HEAD
       syncPolicy:
         automated:
@@ -33,4 +30,4 @@ spec:
       destination:
         # specify different destinations
         namespace: "{{path.basename}}"
-        server: https://kubernetes.default.svc
+        server: '{{url}}'
