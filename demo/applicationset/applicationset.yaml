@@ -33,6 +33,8 @@ spec:
         path: demo
         targetRevision: HEAD
       syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
         automated:
           prune: true
       destination:
