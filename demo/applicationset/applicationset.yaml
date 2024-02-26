@@ -1,22 +1,74 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: cluster-git
+  name: cluster-git-dev
+  namespace: argocd
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
   - matrix:
       generators:
-        - git:
-            repoURL: https://github.com/shariqmus/ArgoCD-ApplicationSet-Demo.git
-            revision: HEAD
-            directories:
-              - path: demo/apps/*/* # demo/apps/app-hulk/dev
-        - clusters:
-            selector:
-              matchLabels:
-                argocd.argoproj.io/secret-type: cluster
+
+      - git:
+          repoURL: https://github.com/shariqmus/ArgoCD-ApplicationSet-Demo.git
+          revision: HEAD
+          directories:
+            - path: demo/apps/*/dev # demo/apps/app-hulk/dev
+
+      - list:
+          elements:
+          - cluster: do-lon1-engineering-dev
+            server: https://e5cfeb55-77ce-44bb-b209-7f872f9e8018.k8s.ondigitalocean.com
+
+  template:
+    metadata:
+      namespace: argocd
+      name: '{{index .path.segments 2}}-{{.path.basename}}'
+    spec:
+      project: default
+      source:
+        helm:
+          valueFiles:
+            - "apps/{{index .path.segments 2}}/{{.path.basename}}/values.yaml"
+            - "apps/{{index .path.segments 2}}/values.yaml"
+        repoURL: https://github.com/shariqmus/ArgoCD-ApplicationSet-Demo.git
+        path: demo
+        targetRevision: HEAD
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: true
+      destination:
+        server: '{{.server}}'
+        namespace: '{{index .path.segments 2}}'
+
+---
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-git-prod
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - matrix:
+      generators:
+
+      - git:
+          repoURL: https://github.com/shariqmus/ArgoCD-ApplicationSet-Demo.git
+          revision: HEAD
+          directories:
+            - path: demo/apps/*/prod # demo/apps/app-hulk/dev
+
+      - list:          
+          elements:
+            - cluster: do-lon1-engineering-prod
+              server: https://64d20718-444a-4c76-94ee-f613f20724e6.k8s.ondigitalocean.com
 
   template:
     metadata:
